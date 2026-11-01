@@ -20,4 +20,9 @@ def test_create_buku_berhasil():
     # Memverifikasi apakah perintah commit (simpan) dipanggil
     model.conn.commit.assert_called_once()
 
-    
+def test_get_all_buku():
+    model = BukuModel()
+
+    hasil = model.get_all_buku()
+
+    assert isinstance(hasil, list)
