@@ -1,6 +1,6 @@
-
 name: Python CI Pipeline - Sistem Perpustakaan
 
+# Pipeline berjalan otomatis saat push atau pull request ke branch main
 on:
   push:
     branches: ["main"]
@@ -11,6 +11,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    # Menyediakan MySQL untuk proses pengujian
     services:
       mysql:
         image: mysql:8.0
@@ -26,19 +27,23 @@ jobs:
           --health-retries=10
 
     steps:
+      # 1. Checkout Repository
       - name: 1. Mengambil Kode dari Repositori (Checkout)
         uses: actions/checkout@v4
 
+      # 2. Setup Python
       - name: 2. Menyiapkan Lingkungan Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # 3. Install Dependencies
       - name: 3. Menginstal Dependensi Proyek
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Menyiapkan tabel database untuk pengujian
       - name: Menyiapkan Tabel Database
         run: |
           python - <<'PY'
@@ -53,6 +58,7 @@ jobs:
 
           cursor = conn.cursor()
 
+          # Membuat tabel buku
           cursor.execute("""
               CREATE TABLE IF NOT EXISTS buku (
                   id_buku INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,11 +68,24 @@ jobs:
               )
           """)
 
+          # Membuat tabel anggota
+          cursor.execute("""
+              CREATE TABLE IF NOT EXISTS anggota (
+                  id_anggota INT AUTO_INCREMENT PRIMARY KEY,
+                  nama VARCHAR(100) NOT NULL,
+                  alamat VARCHAR(255) NOT NULL
+              )
+          """)
+
           conn.commit()
+
           cursor.close()
           conn.close()
+
+          print("Tabel buku dan anggota berhasil disiapkan!")
           PY
 
+      # 4. Automated Unit Testing
       - name: 4. Menjalankan Automated Unit Testing (Pytest)
         run: |
           python -m pytest -v
