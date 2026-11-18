@@ -85,6 +85,11 @@ jobs:
           print("Tabel buku dan anggota berhasil disiapkan!")
           PY
 
+      # Linter: cek kualitas kode sebelum pengujian
+      - name: Mengecek Kualitas Kode dengan Flake8
+        run: |
+          flake8 models/ controllers/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
       # 4. Automated Unit Testing
       - name: 4. Menjalankan Automated Unit Testing (Pytest)
         run: |
